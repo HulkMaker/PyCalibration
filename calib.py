@@ -15,7 +15,7 @@ objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)  # 将世界坐标系建在标
 obj_points = []  # 存储3D点
 img_points = []  # 存储2D点
 
-images = glob.glob("calib/*.png")
+images = glob.glob("*.png")
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -49,12 +49,12 @@ print "tvecs:\n", tvecs  # 平移向量  # 外参数
 
 print("-----------------------------------------------------")
 # 畸变校正  
-img = cv2.imread('calib/001147.png')
+img = cv2.imread('images[0]')
 h, w = img.shape[:2]
 newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 print newcameramtx
 print("------------------使用undistort函数-------------------")
-img = cv2.imread('calib/001996.png')
+img = cv2.imread('images[0]')
 dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
 x, y, w, h = roi
 dst1 = dst[y:y + h, x:x + w]
@@ -63,7 +63,7 @@ print "方法一:dst的大小为:", dst1.shape
 
 # undistort方法二  
 print("-------------------使用重映射的方式-----------------------")
-img = cv2.imread('calib/001996.png')
+img = cv2.imread('images[0]')
 mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)  # 获取映射方程
 # dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)      # 重映射
 dst = cv2.remap(img, mapx, mapy, cv2.INTER_CUBIC)  # 重映射后，图像变小了
