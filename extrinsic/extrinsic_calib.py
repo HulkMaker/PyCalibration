@@ -2,9 +2,14 @@
 import cv2
 import numpy as np
 import glob
-dirs=('Left/','Right')
+from matplotlib import pyplot as plt
+
+dirs=('Left','Right')
 LR_matrix=[[[0 for i in range(3)] for j in range(3)] for k in range(len(dirs))]
 LR_distortion=[[[0 for i in range(5)] for j in range(1)] for k in range(len(dirs))]
+images = glob.glob(dirs[0]+'/*.png')
+LR_rotation=[[[0 for i in range(3)] for j in range(len(images))] for k in range(len(dirs))]
+LR_transpose=[[[0 for i in range(3)] for j in range(len(images))] for k in range(len(dirs))]
 for i in range(2):
     # 找棋盘格角点
     # 阈值
@@ -32,7 +37,7 @@ for i in range(2):
             imgpoints.append(corners)
             # 将角点在图像上显示
             cv2.drawChessboardCorners(img, (w,h), corners, ret)
-            cv2.imshow('findCorners',img)
+            cv2.imshow('find corners in '+dirs[i],img)
             cv2.waitKey(1)
     cv2.destroyAllWindows()
     # calibrate
@@ -43,9 +48,34 @@ for i in range(2):
     #print "dist:\n", dist # 畸变系数   distortion cofficients = (k_1,k_2,p_1,p_2,k_3)
     #print "rvecs:\n", rvecs # 旋转向量  # 外参数
     #print "tvecs:\n", tvecs  # 平移向量  # 外参数
+    #print rvecs[0],"\n",rvecs[1],"\n",rvecs[2],"\n",rvecs[3]
     LR_matrix[i]=mtx
     LR_distortion[i]=dist
+    LR_rotation[i]=rvecs
+    LR_transpose[i] = tvecs
     print dirs[i],"intrinsic:\n ",LR_matrix[i]
     print LR_distortion[i]
 
+# calculate extrinsic result
+R=np.zeros(3)
+T=np.zeros(3)
+size = (332, 252) # 图像尺寸
+#print LR_rotation[0][0],LR_transpose[0][0],LR_rotation[0][1],LR_transpose[0][1]
+cv2.composeRT(LR_rotation[0][0],LR_transpose[0][0],LR_rotation[0][1],LR_transpose[0][1],R,T)
+# 进行立体更正
+R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(LR_matrix[0], LR_distortion[0],LR_matrix[1], LR_distortion[1], size, LR_rotation[0][1],LR_transpose[0][1])
+print "R1:\n",R1,"\nR2:\n",R2,"\n",Q
+
+"""
+img_L = cv2.imread("Ll.png", 0)
+img_R = cv2.imread("R1.png", 0)
+
+#stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET, 16, 15)
+stereo = cv2.createStereoBM(numDisparities=16, blockSize=15)  #OpenCV 3.0的函数
+disparity = stereo.compute(img_L, img_R)
+
+plt.subplot(121), plt.imshow(img_L, 'gray'), plt.title('img_left'), plt.xticks([]), plt.yticks([])
+plt.subplot(122), plt.imshow(disparity, 'gray'), plt.title('disparity'), plt.xticks([]), plt.yticks([])
+plt.show()
+"""
 
