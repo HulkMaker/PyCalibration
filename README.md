@@ -1,15 +1,15 @@
 # PyCalibration
 
-Description:\n
+Description:
 This is stereo camera calibration tool based on OpenCV calib3d module. 
 It can calibrate camera intrinsic and extrinsic parameters.
 It can calculate depth map from single Left/Right camera view.
 
-Dependencies:\n
+Dependencies:
 Python 2.4.13 x86
 OpenCV 3.10
 
-Reference:\n
+Reference:
 http://blog.csdn.net/u011867581/article/details/43818183
 http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 http://blog.csdn.net/zc850463390zc/article/details/48975263
